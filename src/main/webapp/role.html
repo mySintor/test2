@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="GB18030">
+<head>
+    <meta charset="GB18030">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <style>
+        .ff{
+            color: red;
+        }
+        .tree li {
+            list-style-type: none;
+            cursor: pointer;
+        }
+
+        table tbody tr:nth-child(odd) {
+            background: #F4F4F4;
+        }
+
+        table tbody td:nth-child(even) {
+            color: #C00;
+        }
+    </style>
+</head>
+<body>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title"><i class="glyphicon glyphicon-th"></i> 数据列表</h3>
+    </div>
+    <div class="panel-body">
+        <form class="form-inline" role="form" style="float:left;">
+            <div class="form-group has-feedback">
+                <div class="input-group">
+                    <div class="input-group-addon">查询条件</div>
+                    <input class="form-control has-success" type="text" placeholder="请输入查询条件">
+                </div>
+            </div>
+            <button type="button" class="btn btn-warning"><i class="glyphicon glyphicon-search"></i> 查询
+            </button>
+        </form>
+        <button type="button" class="btn btn-danger" style="float:right;margin-left:10px;"><i
+                class=" glyphicon glyphicon-remove"></i> 删除
+        </button>
+        <button type="button" class="btn btn-primary" style="float:right;"
+                onclick="window.location.href='form.html'"><i class="glyphicon glyphicon-plus"></i> 新增
+        </button>
+        <br>
+        <hr style="clear:both;">
+        <div class="table-responsive">
+            <table class="table  table-bordered">
+                <thead>
+                <tr>
+                    <th width="30">#</th>
+                    <th width="30"><input type="checkbox"></th>
+                    <th>名称</th>
+                    <th width="100">操作</th>
+                </tr>
+                </thead>
+                <!--数据库数据-->
+                <tbody id="loadTable"></tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="6" align="center">
+                        <ul id="hx" class="pagination">
+                        </ul>
+                    </td>
+                </tr>
+
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="jquery/jquery-2.1.1.min.js"></script>
+<script src="bootstrap/js/bootstrap.min.js"></script>
+<!--<script src="script/docs.min.js"></script>-->
+<script src="jquery/jquery.easyui.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $(".list-group-item").click(function () {
+            if ($(this).find("ul")) {
+                $(this).toggleClass("tree-closed");
+                if ($(this).hasClass("tree-closed")) {
+                    $("ul", this).hide("fast");
+                } else {
+                    $("ul", this).show("fast");
+                }
+            }
+        });
+    });
+
+    $("tbody .btn-success").click(function () {
+        window.location.href = "assignPermission.html";
+    });
+</script>
+<script type="text/javascript">
+    //加载函数
+    $(function () {
+        loadData(1);
+    });
+    /*全局变量*/
+    //当前页码
+    var pageTotal = -1;
+</script>
+<script type="text/javascript">
+    /*加载表单数据数据*/
+    //START LOAD DATA
+    function loadData(pageNum) {
+        if (pageTotal !== -1) {
+            if (pageNum < 1 || pageNum > pageTotal) {
+                return;
+            }
+        }
+        $(".tr_role").remove();
+        $.ajax({
+            type: 'POST',
+            url: 'role/getPage',
+            data: "pageNum=" + pageNum + "&pageSize=5",
+            success: function (response) {
+                $(response.list).each(function (index, item) {
+                    $("#loadTable").append(
+                        $("<tr class='tr_role'>\n" +
+                            "    <td class='ff'>" + item.id + "</td>\n" +
+                            "    <td><input type='checkbox'></td>\n" +
+                            "    <td>" + item.role + "</td>\n" +
+                            "    <td>\n" +
+                            "        <button type='button' class='btn btn-success btn-xs'>" +
+                            "           <i class=' glyphicon glyphicon-check'></i></button>\n" +
+                            "        <button type='button' class='btn btn-primary btn-xs'>" +
+                            "           <i class='glyphicon glyphicon-pencil'></i></button>\n" +
+                            "        <button type='button' class='btn btn-danger btn-xs'>" +
+                            "           <i class=' glyphicon glyphicon-remove'></i></button>\n" +
+                            "    </td>\n" +
+                            "</tr>"));
+                });
+                $("#loadTable").append($("<label class='ff'>jjjj</label>"));
+                page = pageNum;
+              //  $("#hx > li").remove();
+              //  $("#hx").append($("<li id='first'><a class='ff'>jjjj</a></li>"
+                    /*"<li id='first'><a onclick='loadData(" + response.prePage + ")' class='ff'>上一页</a></li>" +
+                    getPageNumber(response) +
+                    "<li id='last'><a onclick='loadData(" + response.nextPage + ")'>下一页</a></li>"*//*));*/
+                $(pageReference(response)) ;
+            },
+            error: function (response) {
+                console.log(response)
+            }
+        });
+    }
+
+    //END LOAD DATA
+
+    /*改变页码索引行*/
+    //START REFERENCE
+    function pageReference(response) {
+        $("#hx > li").remove();
+        $("#hx").append($(
+            "<li id='first'class='ff'>666<a onclick='loadData(" + response.prePage + ")' class='ff'>上一页</a></li>" +
+            getPageNumber(response) +
+            "<li id='last'><a onclick='loadData(" + response.nextPage + ")'>下一页</a></li>"));
+        /* if (nowPage - 1 < 1) {
+                 $("#first").addClass("disabled");
+             } else if (nowPage + 1 > largestPage) {
+                 $("#last").addClass("disabled");
+                 $("#last").disabled(true);
+             }
+             $("#hx li").each(function () {
+                 if ($(this).children().html() == page) {
+                     $(this).addClass("active");
+                 }
+             })*/
+        //$("#last").addClass("ff");
+        //$("#hx").trigger("create");
+        // debugger;
+    // $.parser.parse();
+        //$.parse($("#hx"));
+    }
+
+    function getPageNumber(response) {
+        var string = "";
+        var num = 0;
+        for (var i = -2; response.pageNum + i <= response.pages && i <= response.navigatePages; i++) {
+            num = response.pageNum + i;
+            if (num < 1) {
+                continue;
+            }
+            if (num === response.pageNum) {
+                string += "<li class='active'>666<a class='' id='page_" + num + "' onclick='loadData(" + num + ")'>" + num + "</a></li>\n";
+                continue;
+            }
+            string += "<li><a id='page_" + num + "' onclick='loadData(" + num + ")'>" + num + "</a></li>\n";
+        }
+        return string;
+    }
+
+    //END REFERENCE
+</script>
+</body>
+</html>

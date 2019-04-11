@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.universe.study.mapper.MenuMapper">
+    <resultMap id="BaseResultMap" type="com.universe.study.entity.Menu">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="path" property="path" jdbcType="VARCHAR"/>
+        <result column="icon" property="icon" jdbcType="VARCHAR"/>
+        <result column="parentId" property="parentId" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <resultMap id="MainResultMap" type="com.universe.study.entity.Menu">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="path" property="path" jdbcType="VARCHAR"/>
+        <result column="icon" property="icon" jdbcType="VARCHAR"/>
+        <result column="parentId" property="parentId" jdbcType="INTEGER"/>
+        <collection property="submenus" ofType="com.universe.study.entity.Menu">
+            <id column="id2" property="id" jdbcType="INTEGER"/>
+            <result column="name2" property="name" jdbcType="VARCHAR"/>
+            <result column="path2" property="path" jdbcType="VARCHAR"/>
+            <result column="icon2" property="icon" jdbcType="VARCHAR"/>
+            <result column="parentId2" property="parentId" jdbcType="INTEGER"/>
+        </collection>
+    </resultMap>
+    <select id="getMenu" resultMap="MainResultMap">
+        SELECT menu1.*,
+               menu2.id       AS id2,
+               menu2.name     AS name2,
+               menu2.path     AS path2,
+               menu2.icon     AS icon2,
+               menu2.parentId AS parentId2
+        FROM (SELECT menu.* FROM menu WHERE menu.parentId = 0) AS menu1
+                 LEFT JOIN menu AS menu2 ON menu1.id = menu2.parentId
+        ORDER BY menu1.id, menu2.id;
+    </select>
+    <select id="getByRoleId" resultType="com.universe.study.entity.Menu" parameterType="java.lang.Integer">
+        SELECT menu.*
+        FROM menu,
+             role,
+             role_menu
+        WHERE menu.id = role_menu.menuId
+          AND role_menu.roleId = role.id
+          AND role.id = #{roleId}
+    </select>
+    <select id="getByUserId" resultType="com.universe.study.entity.Menu" parameterType="java.lang.Integer">
+        SELECT DISTINCT menu.*
+        FROM menu,
+             role,
+             role_menu,
+             user,
+             user_role
+        WHERE user.id = user_role.userId
+          AND user_role.roleId = role.id
+          AND role.id = role_menu.roleId
+          AND role_menu.menuId = menu.id
+    </select>
+</mapper>

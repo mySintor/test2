@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <settings>
+        <!-- 打印查询语句 -->
+        <setting name="logImpl" value="LOG4J"/>
+    </settings>
+    <!--别名-->
+    <typeAliases>
+        <!-- 其实就是将bean的替换成一个短的名字-->
+        <!-- <typeAlias type="com.universe.study.entity.UserInfo" alias="UserInfo"/>-->
+    </typeAliases>
+</configuration>
